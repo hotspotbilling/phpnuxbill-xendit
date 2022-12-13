@@ -1,6 +1,6 @@
 # Payment gateway Xendit
 
-payment gateway Xendit untuk PHPMixBill
+payment gateway Xendit untuk PHPNuxBill
 
 ## instalasi
 

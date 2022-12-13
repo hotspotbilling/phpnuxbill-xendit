@@ -3,7 +3,7 @@
 
 
 /**
- * PHP Mikrotik Billing (https://ibnux.github.io/phpmixbill/)
+ * PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
  *
  * Payment Gateway xendit.com
  **/
@@ -20,7 +20,7 @@ function xendit_validate_config()
 function xendit_show_config()
 {
     global $ui, $config;
-    $ui->assign('_title', 'Xendit - Payment Gateway - ' . $config['CompanyName']);
+    $ui->assign('_title', 'Xendit - Payment Gateway');
     $ui->assign('channels', json_decode(file_get_contents('system/paymentgateway/channel_xendit.json'), true));
     $ui->display('xendit.tpl');
 }
