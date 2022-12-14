@@ -90,6 +90,7 @@ function xendit_create_transaction($trx, $user)
 
     $result = json_decode(Http::postJsonData(xendit_get_server() . 'invoices', $json, ['Authorization: Basic ' . base64_encode($config['xendit_secret_key'] . ':')]), true);
     if (!$result['id']) {
+        sendTelegram("xendit_create_transaction FAILED: \n\n".json_encode($result, JSON_PRETTY_PRINT));
         r2(U . 'order/package', 'e', Lang::T("Failed to create transaction."));
     }
     $d = ORM::for_table('tbl_payment_gateway')
