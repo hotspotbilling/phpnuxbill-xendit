@@ -2,6 +2,8 @@
 
 payment gateway Xendit untuk PHPNuxBill
 
+[Download](https://github.com/hotspotbilling/phpnuxbill-xendit/archive/refs/heads/master.zip)
+
 ## instalasi
 
 Copy **xendit.php** dan **channel_xendit.json** ke folder **system/paymentgateway/**
