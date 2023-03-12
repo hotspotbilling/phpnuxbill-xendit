@@ -11,7 +11,7 @@ function xendit_validate_config()
 {
     global $config;
     if (empty($config['xendit_secret_key']) || empty($config['xendit_verification_token'])) {
-        sendTelegram("Xendit payment gateway not configured");
+        Message::sendTelegram("Xendit payment gateway not configured");
         r2(U . 'order/package', 'w', Lang::T("Admin has not yet setup Xendit payment gateway, please tell admin"));
     }
 }
@@ -89,7 +89,7 @@ function xendit_create_transaction($trx, $user)
 
     $result = json_decode(Http::postJsonData(xendit_get_server() . 'invoices', $json, ['Authorization: Basic ' . base64_encode($config['xendit_secret_key'] . ':')]), true);
     if (!$result['id']) {
-        sendTelegram("xendit_create_transaction FAILED: \n\n".json_encode($result, JSON_PRETTY_PRINT));
+        Message::sendTelegram("xendit_create_transaction FAILED: \n\n".json_encode($result, JSON_PRETTY_PRINT));
         r2(U . 'order/package', 'e', Lang::T("Failed to create transaction."));
     }
     $d = ORM::for_table('tbl_payment_gateway')
@@ -134,7 +134,7 @@ function xendit_get_status($trx, $user)
     } else if ($trx['status'] == 2) {
         r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Transaction has been paid.."));
     }else{
-        sendTelegram("xendit_get_status: unknown result\n\n".json_encode($result, JSON_PRETTY_PRINT));
+        Message::sendTelegram("xendit_get_status: unknown result\n\n".json_encode($result, JSON_PRETTY_PRINT));
         r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Unknown Command."));
     }
 }
