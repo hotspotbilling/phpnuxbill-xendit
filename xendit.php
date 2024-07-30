@@ -89,7 +89,7 @@ function xendit_create_transaction($trx, $user)
 
     $result = json_decode(Http::postJsonData(xendit_get_server() . 'invoices', $json, ['Authorization: Basic ' . base64_encode($config['xendit_secret_key'] . ':')]), true);
     if (!$result['id']) {
-        Message::sendTelegram("xendit_create_transaction FAILED: \n\n".json_encode($result, JSON_PRETTY_PRINT));
+        Message::sendTelegram("xendit_create_transaction FAILED: \n\n" . json_encode($result, JSON_PRETTY_PRINT));
         r2(U . 'order/package', 'e', Lang::T("Failed to create transaction."));
     }
     $d = ORM::for_table('tbl_payment_gateway')
@@ -133,8 +133,8 @@ function xendit_get_status($trx, $user)
         r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Transaction expired."));
     } else if ($trx['status'] == 2) {
         r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Transaction has been paid.."));
-    }else{
-        Message::sendTelegram("xendit_get_status: unknown result\n\n".json_encode($result, JSON_PRETTY_PRINT));
+    } else {
+        Message::sendTelegram("xendit_get_status: unknown result\n\n" . json_encode($result, JSON_PRETTY_PRINT));
         r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Unknown Command."));
     }
 }
@@ -143,7 +143,36 @@ function xendit_get_status($trx, $user)
 function xendit_payment_notification()
 {
     // ignore it, let user check it from payment page
-    die('OK');
+    $data = file_get_contents('php://input');
+    if (!empty($data)) {
+        $json = json_decode($data, true);
+        if (!empty($json['id'])) {
+            $trx = ORM::for_table('tbl_payment_gateway')
+                ->where('gateway_trx_id', $json['id'])
+                ->find_one();
+            if (!$trx) {
+                $trx = ORM::for_table('tbl_payment_gateway')->find_one($json['external_id']);
+            }
+            if ($trx) {
+                $user = ORM::for_table('tbl_customers')->where('username', $trx['username'])->find_one();
+                $result = json_decode(Http::getData(xendit_get_server() . 'invoices/' . $trx['gateway_trx_id'], [
+                    'Authorization: Basic ' . base64_encode($config['xendit_secret_key'] . ':')
+                ]), true);
+                if (in_array($result['status'], ['PAID', 'SETTLED']) && $trx['status'] != 2) {
+                    if (Package::rechargeUser($user['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], $result['payment_channel'])) {
+                        $trx->pg_paid_response = json_encode($result);
+                        $trx->payment_method = $result['payment_method'];
+                        $trx->payment_channel = $result['payment_channel'];
+                        $trx->paid_date = date('Y-m-d H:i:s', strtotime($result['updated']));
+                        $trx->status = 2;
+                        $trx->save();
+                    }
+                }
+            }
+        }
+    }
+    header("Content-Type: application/json");
+    die(json_encode(['status' => 'ok']));
 }
 
 function xendit_get_server()
