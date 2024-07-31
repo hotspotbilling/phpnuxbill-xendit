@@ -116,6 +116,7 @@ function xendit_get_status($trx, $user)
         r2(U . "order/view/" . $trx['id'], 'w', Lang::T("Transaction still unpaid."));
     } else if (in_array($result['status'], ['PAID', 'SETTLED']) && $trx['status'] != 2) {
         if (!Package::rechargeUser($user['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], $result['payment_channel'])) {
+            Message::sendTelegram("xendit_get_status: Activation FAILED: \n\n" . json_encode($result, JSON_PRETTY_PRINT));
             r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Failed to activate your Package, try again later."));
         }
         $trx->pg_paid_response = json_encode($result);
@@ -142,10 +143,12 @@ function xendit_get_status($trx, $user)
 // callback
 function xendit_payment_notification()
 {
-    // ignore it, let user check it from payment page
+    global $config;
     $data = file_get_contents('php://input');
+    header("Content-Type: application/json");
     if (!empty($data)) {
         $json = json_decode($data, true);
+        $msg = '';
         if (!empty($json['id'])) {
             $trx = ORM::for_table('tbl_payment_gateway')
                 ->where('gateway_trx_id', $json['id'])
@@ -166,13 +169,21 @@ function xendit_payment_notification()
                         $trx->paid_date = date('Y-m-d H:i:s', strtotime($result['updated']));
                         $trx->status = 2;
                         $trx->save();
+                    }else{
+                        Message::sendTelegram("xendit_payment_notification: Activation FAILED: \n\n" . json_encode($json, JSON_PRETTY_PRINT)." \n\n" . json_encode($result, JSON_PRETTY_PRINT));
+                        $msg = 'Failed activate package';
                     }
+                }else{
+                    $msg = 'Status not paid';
                 }
+            } else {
+                $msg = 'Transaction not found.';
             }
         }
+        die(json_encode(['status' => $json['status'], 'id' => $json['id'], 'message' => $msg]));
+    } else {
+        die(json_encode(['status' => 'not data received']));
     }
-    header("Content-Type: application/json");
-    die(json_encode(['status' => 'ok']));
 }
 
 function xendit_get_server()
