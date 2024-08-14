@@ -112,7 +112,9 @@ function xendit_get_status($trx, $user)
         'Authorization: Basic ' . base64_encode($config['xendit_secret_key'] . ':')
     ]), true);
 
-    if ($result['status'] == 'PENDING') {
+    if ($trx['status'] == 2) {
+        r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Transaction has been paid.."));
+    } else if ($result['status'] == 'PENDING') {
         r2(U . "order/view/" . $trx['id'], 'w', Lang::T("Transaction still unpaid."));
     } else if (in_array($result['status'], ['PAID', 'SETTLED']) && $trx['status'] != 2) {
         if (!Package::rechargeUser($user['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], $result['payment_channel'])) {
@@ -132,8 +134,6 @@ function xendit_get_status($trx, $user)
         $trx->status = 3;
         $trx->save();
         r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Transaction expired."));
-    } else if ($trx['status'] == 2) {
-        r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Transaction has been paid.."));
     } else {
         Message::sendTelegram("xendit_get_status: unknown result\n\n" . json_encode($result, JSON_PRETTY_PRINT));
         r2(U . "order/view/" . $trx['id'], 'd', Lang::T("Unknown Command."));
