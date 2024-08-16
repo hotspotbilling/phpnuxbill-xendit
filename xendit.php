@@ -69,10 +69,19 @@ function xendit_save_config()
 function xendit_create_transaction($trx, $user)
 {
     global $config;
+    $addbills = User::getBills($user['id']);
+    $bills = [];
+    foreach ($addbills[0] as $k => $v) {
+        $bills[] = $k;
+    }
+    $purpose = $trx['plan_name'];
+    if(count($bills)>0){
+        $purpose .= '| '. implode(', ', $bills);
+    }
     $json = [
         'external_id' => $trx['id'],
         'amount' => $trx['price'],
-        'description' => $trx['plan_name'],
+        'description' => $purpose,
         'customer' => [
             'mobile_number' => $user['phonenumber'],
         ],
