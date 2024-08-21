@@ -14,7 +14,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">Verification Token</label>
+                        <label class="col-md-2 control-label">{Lang::T('Verification Token')}</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="xendit_verification_token" name="xendit_verification_token" placeholder="cece1878a4a24754fb193309d3977f4dc0e86e907c4fb188cbccd10d8ef67fd3" value="{$_c['xendit_verification_token']}">
                             <a href="https://dashboard.xendit.co/settings/developers#callbacks" target="_blank" class="help-block">https://dashboard.xendit.co/settings/developers#callbacks</a>
@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">Channels</label>
+                        <label class="col-md-2 control-label">{Lang::T('Channels')}</label>
                         <div class="col-md-6">
                             {foreach $channels as $channel}
                                 <label class="checkbox-inline"><input type="checkbox" {if strpos($_c['xendit_channel'], $channel['id']) !== false}checked="true"{/if} id="xendit_channel" name="xendit_channel[]" value="{$channel['id']}"> {$channel['name']}</label>
@@ -37,13 +37,13 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
-                            <button class="btn btn-primary waves-effect waves-light" type="submit">{Lang::T('Save')}</button>
+                            <button class="btn btn-primary waves-effect waves-light" type="submit">{Lang::T('Save Change')}</button>
                         </div>
                     </div>
                         <pre>/ip hotspot walled-garden
 add dst-host=xendit.co
 add dst-host=*.xendit.co</pre>
-<small id="emailHelp" class="form-text text-muted">Set Telegram Bot to get any error and notification</small>
+<small id="emailHelp" class="form-text text-muted">{Lang::T('Set Telegram Bot to get any error and notification')}</small>
                 </div>
             </div>
 
