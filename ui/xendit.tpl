@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">Channels</label>
+                        <label class="col-md-2 control-label">{Lang::T('Channels')}</label>
                         <div class="col-md-6">
                             {foreach $channels as $channel}
                                 <label class="checkbox-inline"><input type="checkbox" {if strpos($_c['xendit_channel'], $channel['id']) !== false}checked="true"{/if} id="xendit_channel" name="xendit_channel[]" value="{$channel['id']}"> {$channel['name']}</label>
@@ -37,7 +37,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
-                            <button class="btn btn-primary waves-effect waves-light" type="submit">{Lang::T('Save')}</button>
+                            <button class="btn btn-primary waves-effect waves-light" type="submit">{Lang::T('Save Change')}</button>
                         </div>
                     </div>
                         <pre>/ip hotspot walled-garden
